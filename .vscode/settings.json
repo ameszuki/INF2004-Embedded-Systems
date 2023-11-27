@@ -1,3 +1,13 @@
 {
-    "cmake.sourceDirectory": "D:/SIT/INF2004-Embedded-Systems/src"
+    "cmake.sourceDirectory": "D:/SIT/INF2004-Embedded-Systems/TARGET_pico",
+    "files.associations": {
+        "ff.h": "c",
+        "array": "c",
+        "string_view": "c",
+        "initializer_list": "c",
+        "ranges": "c",
+        "utility": "c",
+        "hw_config.h": "c",
+        "sd_card.h": "c"
+    }
 }

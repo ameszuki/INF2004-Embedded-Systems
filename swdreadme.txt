@@ -40,9 +40,9 @@ C:\Program Files\Raspberry Pi\Pico SDK v1.5.1\gcc-arm-none-eabi\bin>arm-none-eab
 
 D:\\SIT\\INF2004-EmbeddedSystemsProgramming\\project\\testdump
 
-openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "reset init" -c "dump_image D:\\SIT\\INF2004-EmbeddedSystemsProgramming\\project\\testdump 0x100001e8 12" -c "exit"
-openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "echo init" -c "init" -c "echo reset init" -c "reset init" -c "echo dumping" -c "dump_image D:\\SIT\\INF2004-EmbeddedSystemsProgramming\\project\\testdump 0x100001e8 12" -c "echo exiting" -c "exit"
-arm-none-eabi-gdb D:\SIT\INF2004-EmbeddedSystemsProgramming\project\hell0_usb.elf
+
+
+oarm-none-eabi-gdb D:\SIT\INF2004-EmbeddedSystemsProgramming\project\hell0_usb.elf
 
 
 0xA5 -- READ IDCODE
@@ -127,12 +127,14 @@ read 32bits
 
 0000 0000 1111 1111 1111 1111 0000 0000 - 0xFFFF00
 
+****** THIS HALTS THE CORE *******
+openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "reset init" -c "dump_image D:\\SIT\\INF2004-Embedded-Systems\\others\\openocd\\testdump 0x100001e8 12" -c "exit"
+
+****** THIS DOESNT HALT THE CORE *******
+openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "dump_image D:\\SIT\\INF2004-Embedded-Systems\\others\\openocd\\testdump 0x20001364 12" -c "exit"
+
 counter variable
 0x20001364
 
-0x0 0x0 0x0 0x8 
-0x0 0x0 0x0 0xf 
-0x0 0x0 0x0 0x16 
-0x0 0x0 0x0 0x1d 
-0x0 0x0 0x0 0x24
+
 
