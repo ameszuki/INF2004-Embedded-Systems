@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "pico_extras",
+		"source" : "D:/SIT/INF2004-EmbeddedSystemsProgramming/pico/pico-extras"
+	}
+}

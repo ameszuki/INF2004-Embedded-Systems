@@ -1,0 +1,14 @@
+{
+	"backtraceGraph" : 
+	{
+		"commands" : [],
+		"files" : [],
+		"nodes" : []
+	},
+	"installers" : [],
+	"paths" : 
+	{
+		"build" : "pico_extras/src/rp2_common",
+		"source" : "D:/SIT/INF2004-EmbeddedSystemsProgramming/pico/pico-extras/src/rp2_common"
+	}
+}
