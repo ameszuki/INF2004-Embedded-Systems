@@ -1,5 +1,10 @@
 {
     "files.associations": {
-        "math.h": "c"
+        "math.h": "c",
+        "stdio.h": "c",
+        "sd_card.h": "c",
+        "hw_config.h": "c",
+        "stdlib.h": "c",
+        "type_traits": "c"
     }
 }

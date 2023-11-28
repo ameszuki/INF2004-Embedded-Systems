@@ -16,31 +16,38 @@
 #include <string.h>
 #include "pico/stdlib.h"
 #include "detection.h"
-#include "sd_card.h"
-#include "ff.h"
-#include "hw_config.h"
+#include "filesystem.h"
 
-
+#define LINE_RESET_CLK_CYCLES 52        // Atleast 50 cycles, selecting 52 
+#define LINE_RESET_CLK_IDLE_CYCLES 2    // For Line Reset, have to send both of these
+#define SWD_DELAY 5
+#define JTAG_TO_SWD_CMD 0xE79E
+#define SWDP_ACTIVATION_CODE 0x1A
+#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
+#define bitSet(value, bit) ((value) |= (1UL << (bit)))
+#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
+#define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
 #define ARRAY_SIZE(array) (sizeof(array) / sizeof(*array))
 #define SIZE 1000
+
+uint xSwdClk=2; // CLOCK PIN
+uint xSwdIO=3; // IO PIN
+bool swdDeviceFound=false;
+int numDumps = 1; // number of dumps
+int bytes = 4; // number of bytes per dump
+int totalbytes = 4; // total bytes stored
+int format; // number of bytes per line when printing
+long addr = 0x100001e8; // start address of dump
+int threshold = SIZE; // max number of bytes buffer can hold
 const uint onboardLED = 25;
 char cmd;
 char data_buf[SIZE];
 char read_buf[SIZE];
 bool isDetecting = false;
 
-
-// include file from openocd/src/helper
 static const char * const jep106[][126] = {
 #include "jep106.inc"
 };
-
-FRESULT fr;
-FATFS fs;
-FIL fp;
-int ret;
-char filename[] = "dump";
-UINT bytes_read;
 
 void showPrompt(void)
 {
@@ -69,33 +76,6 @@ const char *jep106_table_manufacturer(unsigned int bank, unsigned int id)
 		return "Unknown";
 	return jep106[bank][id];
 }
-
-//-------------------------------------SWD Scan [custom implementation]-----------------------------
-     
-
-#define LINE_RESET_CLK_CYCLES 52        // Atleast 50 cycles, selecting 52 
-#define LINE_RESET_CLK_IDLE_CYCLES 2    // For Line Reset, have to send both of these
-#define SWD_DELAY 5
-#define JTAG_TO_SWD_CMD 0xE79E
-#define SWDP_ACTIVATION_CODE 0x1A
-#define bitRead(value, bit) (((value) >> (bit)) & 0x01)
-#define bitSet(value, bit) ((value) |= (1UL << (bit)))
-#define bitClear(value, bit) ((value) &= ~(1UL << (bit)))
-#define bitWrite(value, bit, bitvalue) ((bitvalue) ? bitSet(value, bit) : bitClear(value, bit))
-
-uint xSwdClk=2;
-uint xSwdIO=3;
-bool swdDeviceFound=false;
-
-// ========= DEFAULT VALUES FOR MEMORY READING =========
-int numDumps = 1;
-int bytes = 4;
-int totalbytes = 4;
-int format;
-long addr;
-int threshold = SIZE;
-char buf1[SIZE];
-int buf_counter = 0;
 
 void swdDisplayDeviceDetails(uint32_t idcode)
 {
@@ -216,7 +196,7 @@ void swdWriteBit(bool value)
 
 void swdWriteBits(long value, int length)
 {
-    printf("writing 0x%x\n", value);
+    // printf("writing 0x%x\n", value);
     for (int i=0; i<length; i++)
     {
         swdWriteBit(bitRead(value, i));
@@ -245,7 +225,6 @@ bool clearAndCheck(long command)
     return false;
 }
 
-// Receive ACK response from SWD device & verify if OK
 bool swdReadAck(long command)
 {
     bool bit1=swdReadBit();
@@ -290,7 +269,6 @@ void swdResetLineSWD(void)
     swdIOHigh();
 }
 
-// Leave dormant state
 void swdArmWakeUp(void)
 {
     swdSetWriteMode();
@@ -360,11 +338,11 @@ long getparity(long data)
     return 0x0;
 }
 
-void dumpdata(char* buf, int* buf_counter)//long addr, int bytes
+void dumpdata(char* buf, int* buf_counter)
 {
     long parity = getparity(addr);
     // 0x81 clear error flags
-    printf("==== CLEAR ERROR FLAGS ====\n");
+    printf("= ABORT REGISTER =\n");
     swdWriteBits(0x81,8);
     swdTurnAround();
     if(swdReadAck(0x81))
@@ -376,19 +354,19 @@ void dumpdata(char* buf, int* buf_counter)//long addr, int bytes
     }
 
     // 0xb1 select AP register
-    printf("==== SELECT AP REGISTER ====\n");
+    printf("= SELECT REGISTER =\n");
     swdWriteBits(0xb1,8);
     swdTurnAround();
     if(swdReadAck(0xb1))
     {
         swdSetWriteMode();
-        swdWriteBits(0x0,32); // select transfer address register
+        swdWriteBits(0x0,32); // select transfer address register(TAR)
         swdWriteBits(0x0,1);
         swdWriteBits(0x00, 4);
     }
 
     // write operation (input start memory address here)
-    printf("==== INPUT START MEMORY ADDRESS ====\n");
+    printf("= TRANSFER ADDRESS REGISTER(TAR) ====\n");
     swdWriteBits(0x8b,8);
     swdTurnAround();
     if(swdReadAck(0x8b))
@@ -400,9 +378,9 @@ void dumpdata(char* buf, int* buf_counter)//long addr, int bytes
     }
 
     // read from RDBUFF register
-    // 1st 0x9f will always be 0x0, TLDR this is a dummy read
+    // 1st 0x9f will always be 0x0, considered a dummy read
     for (int i = 0; i < bytes / 4 + 1; i++) {
-        printf("==== READ FROM RDBUFF ====\n");
+        printf("= READ FROM DATA READ/WRITE(DRW) REGISTER =\n");
         swdWriteBits(0x9f, 8);
         swdTurnAround();
         if (swdReadAck(0x9f)) 
@@ -411,6 +389,7 @@ void dumpdata(char* buf, int* buf_counter)//long addr, int bytes
             data = swdRead(32);
             swdRead(1);
             printf("- Dumped bytes: 0x%x\n", data);
+            // Skip dummy read
             if(i == 0)
             {
                 swdSetWriteMode();
@@ -439,138 +418,6 @@ void dumpdata(char* buf, int* buf_counter)//long addr, int bytes
         swdSetWriteMode();
         swdWriteBits(0x00, 4);
     }
-}
-
-void swdTest()
-{
-    printf("=========TRYING TO READ FLASH==========\n");
-    // 0x81 ABORT REGISTER
-    printf("==== ABORT REGISTER, CLEAR ERROR FLAGS ====\n");
-    // swdSetWriteMode();
-    swdWriteBits(0x81,8);
-    swdTurnAround();
-    if(swdReadAck(0x81))
-    {
-        printf("0x81 ack received\n");
-        // swdTurnAround();
-        swdSetWriteMode();
-        swdWriteBits(0x10,32);
-        swdWriteBits(0x1,1);
-        swdWriteBits(0x00, 4);
-    }
-    
-    // // 0xb1 set APSEL and APBANKSEL
-    // printf("==== set APSEL and APBANKSEL ====\n");
-    // swdWriteBits(0xb1,8);
-    // swdTurnAround();
-    // if(swdReadAck(0xb1))
-    // {
-    //     printf("0xb1 ack received\n");
-    //     // swdTurnAround();
-    //     swdSetWriteMode();
-    //     swdWriteBits(0x0,32);
-    //     swdWriteBits(0x0,1);
-    //     swdWriteBits(0x00, 4);
-    // }
-
-    // 0xa3 CSW set auto increment
-    printf("==== CSW, SET AUTO INCREMENT ====\n");
-    swdWriteBits(0xa3,8);
-    swdTurnAround();
-    if(swdReadAck(0xa3))
-    {
-        printf("0xa3 ack received\n");
-        // swdTurnAround();
-        swdSetWriteMode();
-        swdWriteBits(0xa2000020,32);
-        swdWriteBits(0x0,1);
-        swdWriteBits(0x00, 4);
-    }
-
-    // // 0x87 CSW read
-    // printf("==== CSW READ ====\n");
-    // swdWriteBits(0x87,8);
-    // swdTurnAround();
-    // if(swdReadAck(0x87))
-    // {
-    //     printf("0x87 ack received\n");
-    //     // swdTurnAround();
-    //     swdRead(32);
-    //     swdRead(1);
-    // }
-    // swdSetWriteMode();
-    // swdWriteBits(0x00, 4);
-
-    // // 0xb1 set APSEL and APBANKSEL
-    // printf("==== set APSEL and APBANKSEL ====\n");
-    // swdWriteBits(0xb1,8);
-    // swdTurnAround();
-    // if(swdReadAck(0xb1))
-    // {
-    //     printf("0xb1 ack received\n");
-    //     // swdTurnAround();
-    //     swdSetWriteMode();
-    //     swdWriteBits(0x0,32);
-    //     swdWriteBits(0x0,1);
-    //     swdWriteBits(0x00, 4);
-    // }
-    
-    // write operation (input start memory address here)
-    printf("==== INPUT START MEMORY ADDRESS ====\n");
-    swdWriteBits(0x8b,8);
-    swdTurnAround();
-    if(swdReadAck(0x8b))
-    {
-        printf("0x8b ack received\n");
-        swdSetWriteMode();
-        swdWriteBits(0x100001e8,32); // start of flash address
-        swdWriteBits(0x0,1);
-        swdWriteBits(0x00, 4);
-    }
-
-    printf("==== DUMMY READ ====\n");
-    swdWriteBits(0x9f,8);
-    swdTurnAround();
-    if(swdReadAck(0x9f))
-    {
-        swdRead(32);
-        swdRead(1);
-    }
-    swdSetWriteMode();
-    swdWriteBits(0x00, 4);
-
-    printf("==== READ DATA ====\n");
-    swdWriteBits(0x9f,8);
-    swdTurnAround();
-    if(swdReadAck(0x9f))
-    {
-        swdRead(32);
-        swdRead(1);
-    }
-    swdSetWriteMode();
-    swdWriteBits(0x00, 4);
-
-    printf("==== READ DATA ====\n");
-    swdWriteBits(0x9f,8);
-    swdTurnAround();
-    if(swdReadAck(0x9f))
-    {
-        swdRead(32);
-        swdRead(1);
-    }
-    swdSetWriteMode();
-    swdWriteBits(0x00, 4);
-
-    printf("==== READ DATA ====\n");
-    swdWriteBits(0xbd,8);
-    swdTurnAround();
-    if(swdReadAck(0xbd))
-    {
-        swdRead(32);
-        swdRead(1);
-    }
-    swdSetWriteMode();
-    swdWriteBits(0x00, 4);
 }
 
 int getNumDumps()
@@ -603,19 +450,6 @@ long getAddress()
     return addr;
 }
 
-void printbuf(char* buf, int size, int format)
-{
-    printf("==== DUMPED DATA ====\n");
-    for(int i = 0; i < size; i++)
-    {
-        if (i != 0 && i % format == 0)
-            printf("\n");
-        printf("0x%x ", buf[i]);
-        
-    }
-    printf("\n\n");
-}
-
 int getBytes()
 {
     int _bytes;
@@ -628,8 +462,8 @@ int getBytes()
 
 void swdTrySWDJ(void)
 {
-    
-    
+    int buf_counter = 0;
+    char buf1[SIZE];
     numDumps = getNumDumps();
     bytes = getBytes();
     totalbytes = numDumps * bytes;
@@ -656,7 +490,7 @@ void swdTrySWDJ(void)
         sleep_ms(1000);
     }
 
-    // COPY TO GLOBAL BUFFER FOR DETECTION LOGIC
+    // COPY TO GLOBAL BUFFER
     memcpy(data_buf, buf1, SIZE);
 
     printbuf(buf1, totalbytes, format);
@@ -727,114 +561,28 @@ void ToggleDetection()
     }
 }
 
-void FileSystem_Init()
-{
-    // Initialize SD card
-    if (!sd_init_driver()) 
-    {
-        printf("ERROR: Could not initialize SD card\r\n");
-        while(true);
-    }
-    printf("SD Driver Init Success.\n");
-}
-
-void Mount_Drive()
-{
-    fr = f_mount(&fs, "0:", 1);
-    if (fr != FR_OK) 
-    {
-        printf("ERROR: Could not mount filesystem (%d)\r\n", fr);
-        while(true);
-    }
-    printf("Mount Success.\n");
-}
-
-void Write_File()
-{
-    // Write something to file
-    // Be aware that this will overwrite anything that is currently in the sd card
-    fr = f_open(&fp, filename, FA_WRITE | FA_CREATE_ALWAYS);
-    if (fr != FR_OK) 
-    {
-        printf("ERROR: Could not open file (%d)\r\n", fr);
-        // while(true);
-    }
-    else
-        printf("File opened.\n");
-    fr = f_write(&fp, data_buf, totalbytes, &bytes_read);
-    if (fr != FR_OK) 
-    {
-        printf("ERROR: Could not write to file (%d)\r\n", ret);
-        // while(true);
-    }
-    else
-        printf("File written.\n");
-    fr = f_close(&fp);
-    printf("File closed.\n");
-}
-
-void Read_File()
-{
-    // Write something to file
-    // Be aware that this will overwrite anything that is currently in the sd card
-    fr = f_open(&fp, filename, FA_READ);
-    if (fr != FR_OK) 
-    {
-        printf("ERROR: Could not open file (%d)\r\n", fr);
-        // while(true);
-    }
-    else
-        printf("File opened.\n");
-    fr = f_read(&fp, read_buf, totalbytes, &bytes_read);
-    if (fr != FR_OK) 
-    {
-        printf("ERROR: Could not read file (%d)\r\n", ret);
-        // while(true);
-    }
-    else
-        printf("File Read.\n");
-    fr = f_close(&fp);
-    printbuf(read_buf, totalbytes, format);
-    printf("File closed.\n");
-}
-
-void init_buffers()
-{
-    for(int i = 0; i < BUFFER_SIZE; i++)
-    {
-        data_buf[i] = (char)0x0;
-        read_buf[i] = (char)0x0;
-    }
-}
-
 //--------------------------------------------Main--------------------------------------------------
 
 int main()
 {
-    // sleep_ms(3000);
     stdio_init_all();
-    init_buffers();
     FileSystem_Init();
     Mount_Drive();
     // GPIO init
     gpio_init(onboardLED);
     gpio_set_dir(onboardLED, GPIO_OUT);
-    
-    FileSystem_Init();
-    Mount_Drive();
 
     //get user input to display splash & menu    
-    cmd=getc(stdin);
     showMenu();
     showPrompt();
 
     while(1)
     {
+        // RECEIVE COMMANDS FROM STDIN
         cmd=getc(stdin);
         printf("%c\n\n",cmd);
         switch(cmd)
         {
-            // Help menu requested
             case 'h':
                 showMenu();
                 break;
@@ -842,10 +590,11 @@ int main()
                 swdScan();
                 break;
             case 'w':
-                Write_File();
+                Write_File(data_buf, totalbytes);
                 break;
             case 'p':
-                Read_File();
+                Read_File(read_buf, totalbytes, format);
+                
                 break;
             case 'd':
                 ToggleDetection();
