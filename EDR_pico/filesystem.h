@@ -1,3 +1,10 @@
+/* 
+    [ Read and write to SD Card on Raspberry Pi Pico Maker Board]
+    [References & special thanks]
+        https://www.digikey.com/en/maker/projects/raspberry-pi-pico-rp2040-sd-card-example-with-micropython-and-cc/e472c7f578734bfd96d437e68e670050
+        https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico  
+*/
+
 #include "sd_card.h"
 #include "ff.h"
 #include "hw_config.h"

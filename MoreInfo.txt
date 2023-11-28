@@ -1,0 +1,21 @@
+*** PIN CONNECTION ***
+Target pico ---> EDR pico
+==SWD==
+swd gnd -------> pin 3
+swdio   -------> pin 4
+swdclk  -------> pin 5
+==UART==
+pin 2   -------> pin 6
+pin 1   -------> pin 7
+==Power==
+VSYS    -------> VSYS
+
+=== Openocd commands ===
+****** THIS HALTS THE CORE *******
+openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "reset init" -c "dump_image D:\\SIT\\INF2004-Embedded-Systems\\others\\openocd\\testdump 0x100001e8 12" -c "exit"
+
+****** THIS DOESNT HALT THE CORE *******
+openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "dump_image D:\\SIT\\INF2004-Embedded-Systems\\others\\openocd\\testdump 0x20001364 12" -c "exit"
+
+*** Recorded Counter Variable's Address ***
+0x20001364
