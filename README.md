@@ -10,15 +10,17 @@ A concrete example would be, detecting changes in the firmware of the emulated I
 Please refer to diagrams below for visual aid.
 
 # Pin Connections
-+----------------+----------+\
-|  Target Pico   | EDR Pico |\
-+----------------+----------+\
-| swd gnd(Black) |        3 |\
-| swdio(Orange)  |        4 |\
-| swdclk(Yellow) |        5 |\
-| 2              |        6 |\
-| 1              |        7 |\
-+----------------+----------+\
+```
++----------------+----------+
+|  Target Pico   | EDR Pico |
++----------------+----------+
+| swd gnd(Black) |        3 |
+| swdio(Orange)  |        4 |
+| swdclk(Yellow) |        5 |
+| 2              |        6 |
+| 1              |        7 |
++----------------+----------+
+```
 
 # Requirements
 ## Hardware
