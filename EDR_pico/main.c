@@ -49,6 +49,16 @@ static const char * const jep106[][126] = {
 #include "jep106.inc"
 };
 
+const char *banner=R"banner(
+ _________________  ______ _____ _____ _____ 
+|  ___|  _  \ ___ \ | ___ \_   _/  __ \  _  |
+| |__ | | | | |_/ / | |_/ / | | | /  \/ | | |
+|  __|| | | |    /  |  __/  | | | |   | | | |
+| |___| |/ /| |\ \  | |    _| |_| \__/\ \_/ /
+\____/|___/ \_| \_| \_|    \___/ \____/\___/ 
+                                             
+                                             )banner";
+
 void showPrompt(void)
 {
     printf(" > ");
@@ -56,6 +66,7 @@ void showPrompt(void)
 
 void showMenu(void)
 {
+    printf("\n%s\n", banner);
     printf(" Supported commands:\n\n");
     printf("     \"h\" = Show this menu\n\n");
     printf("     \"s\" = Perform SWD scan\n\n");
@@ -426,28 +437,31 @@ int getNumDumps()
 
     printf("Enter number of dumps:\n");
     scanf("%d", &dumps);
+    printf("You entered: %d\n", dumps);
 
     return dumps;
 }
 
 int getFormat()
 {
-    int format;
+    int _format;
 
     printf("Enter number of bytes you want to see per line:\n");
-    scanf("%d", &format);
+    scanf("%d", &_format);
+    printf("You entered: %d\n", _format);
 
-    return format;
+    return _format;
 }
 
 long getAddress()
 {
-    long addr;
+    long _addr;
 
     printf("Enter start address of dump: \n");
-    scanf("%lx", &addr);
+    scanf("%lx", &_addr);
+    printf("You entered: 0x%x\n", _addr);
 
-    return addr;
+    return _addr;
 }
 
 int getBytes()
@@ -456,6 +470,7 @@ int getBytes()
 
     printf("Enter number of bytes you want to see per dump: \n");
     scanf("%d", &_bytes);
+    printf("You entered: %d\n", _bytes);
 
     return _bytes;
 }
@@ -594,7 +609,6 @@ int main()
                 break;
             case 'p':
                 Read_File(read_buf, totalbytes, format);
-                
                 break;
             case 'd':
                 ToggleDetection();

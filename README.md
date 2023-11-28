@@ -38,6 +38,153 @@ Please refer to diagrams below for visual aid.
     - [For C, Website](https://www.raspberrypi.com/documentation/microcontrollers/c_sdk.html)
     - [For python, Website](https://www.raspberrypi.com/documentation/microcontrollers/micropython.html#what-is-micropython)
 
+
+# Usage Sample Outputs
++ Available commands when the program is running
+\
+```
+ _________________  ______ _____ _____ _____ 
+|  ___|  _  \ ___ \ | ___ \_   _/  __ \  _  |
+| |__ | | | | |_/ / | |_/ / | | | /  \/ | | |
+|  __|| | | |    /  |  __/  | | | |   | | | |
+| |___| |/ /| |\ \  | |    _| |_| \__/\ \_/ /
+\____/|___/ \_| \_| \_|    \___/ \____/\___/ 
+                                             
+                                             
+ Supported commands:
+
+     "h" = Show this menu
+
+     "s" = Perform SWD scan
+
+     "w" = Save Dumped Data into SD Card
+
+     "p" = Read Dumped Data from SD Card
+
+     "d" = Toggle detection logic. Determines if detection logic will be performed in SWD Scan. Default false.
+
+ [ Note: Disable 'local echo' in your terminal emulator program ]
+```
+\
++ SWD Scan
+```
+ > s
+
+Enter number of dumps:
+You entered: 4
+Enter number of bytes you want to see per dump: 
+You entered: 4
+Enter number of bytes you want to see per line:
+You entered: 4
+Enter start address of dump: 
+You entered: 0x20001364
+Dump count set to: 4
+Bytes per dump set to: 4
+Total number of bytes: 16 
+Number of bytes per line set to: 4
+Start address set to: 0x20001364
+Now starting dump operation...
+===== DUMP: 3 ======
+Command [0xa5]: ACK OK
+     [  Pinout  ]  SWDIO=CH3 SWCLK=CH2
+
+     [ Device 0 ]  0x0BC12477 (mfg: 'ARM Ltd' , part: 0xbc12, ver: 0x0)
+
+= ABORT REGISTER =
+Command [0x81]: ACK OK
+= SELECT REGISTER =
+Command [0xb1]: ACK OK
+= TRANSFER ADDRESS REGISTER(TAR) ====
+Command [0x8b]: ACK OK
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x0
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x63
+storing data...
+===== DUMP: 2 ======
+Command [0xa5]: ACK OK
+     [  Pinout  ]  SWDIO=CH3 SWCLK=CH2
+
+     [ Device 0 ]  0x0BC12477 (mfg: 'ARM Ltd' , part: 0xbc12, ver: 0x0)
+
+= ABORT REGISTER =
+Command [0x81]: ACK OK
+= SELECT REGISTER =
+Command [0xb1]: ACK OK
+= TRANSFER ADDRESS REGISTER(TAR) ====
+Command [0x8b]: ACK OK
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x0
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x6c
+storing data...
+===== DUMP: 1 ======
+Command [0xa5]: ACK OK
+     [  Pinout  ]  SWDIO=CH3 SWCLK=CH2
+
+     [ Device 0 ]  0x0BC12477 (mfg: 'ARM Ltd' , part: 0xbc12, ver: 0x0)
+
+= ABORT REGISTER =
+Command [0x81]: ACK OK
+= SELECT REGISTER =
+Command [0xb1]: ACK OK
+= TRANSFER ADDRESS REGISTER(TAR) ====
+Command [0x8b]: ACK OK
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x0
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x75
+storing data...
+===== DUMP: 0 ======
+Command [0xa5]: ACK OK
+     [  Pinout  ]  SWDIO=CH3 SWCLK=CH2
+
+     [ Device 0 ]  0x0BC12477 (mfg: 'ARM Ltd' , part: 0xbc12, ver: 0x0)
+
+= ABORT REGISTER =
+Command [0x81]: ACK OK
+= SELECT REGISTER =
+Command [0xb1]: ACK OK
+= TRANSFER ADDRESS REGISTER(TAR) ====
+Command [0x8b]: ACK OK
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x0
+= READ FROM DATA READ/WRITE(DRW) REGISTER =
+Command [0x9f]: ACK OK
+- Dumped bytes: 0x81
+storing data...
+==== DUMPED DATA ====
+0x0 0x0 0x0 0x63 
+0x0 0x0 0x0 0x6c 
+0x0 0x0 0x0 0x75 
+0x0 0x0 0x0 0x81
+```
+\
++ Write to SD Card
+```
+> w
+
+File opened.
+File written.
+File closed.
+``` 
+\
++ Read from SD Card
+```
+ > p
+
+File opened.
+File Read.
+File closed.
+```
+
 # Dumping of memory to EDR pico for anomalies detection
 
 To achieve a modular design process, our team came up with a flow chart and block diagram.
