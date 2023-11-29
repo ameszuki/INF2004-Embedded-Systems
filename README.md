@@ -2,7 +2,7 @@
 
 The idea was to develop a Proof of Concept EDR (Endpoint Detection and Response) solution for IoT devices using a pico. The proof of concept involves 2 picos, where the first pico emulates a simple IoT device which is being monitored by the 2nd pico, which is the EDR. The idea was to use the Serial Wire Debug (SWD) interface to achieve a hardware level read/write of memory, which should be impossible for an attacker to tamper with from a software level. This can be used to monitor for anomalies in the flash memory such as configurations, voltage etc.
 
-A concrete example would be, detecting changes in the firmware of the emulated IoT device. The EDR could then send a reset signal as a response to prevent the anomaly from taking effect. Data of such anomaly will also be recorded and stored in an SD card. Data being monitored will also serve a web GUI for the viewing of data.
+A concrete example would be, detecting changes in the firmware of the emulated IoT device. The EDR could then send a reset signal as a response to prevent the anomaly from taking effect. Data of such anomaly will also be recorded and stored in an SD card.  
 
 # Current use case
 + Target Pico - contains code that increments a counter variable to simulate the constant changing of value of an IoT device.
@@ -225,9 +225,12 @@ These current detection rules are focused on detecting deviation from the "known
 ## Future work
 This project is currently developed as a Proof of Concept (PoC) and has several limitations that should be addressed before it can be considered operationally practical to implement.  
 - memory dumping speed is currently too slow to practically dump the entire flash memory (2MB) of a pi pico, which should be implemented for a real use case
+- currently logs are stored in the SD card, displaying them via a web gui would be more user friendly  
 - detection logic is currently hardcoded into the firmware. A more practical solution would be to send the raw dumps to a dedicated server/cloud in a secure manner, where more sophisticated analysis can be performed e.g.
     - YARA signature checking to detect known malware
     - forwarding to SIEM for query
+ 
+
 
 
 Once these limitations are addressed, it would be implemented by attaching the pins that are currently connected to the slave pico via jumper cables to the IOT device's SWD interface, and having the EDR pico either airgapped or connected to a separate local network to prevent attackers from being able to reach the EDR pico.
