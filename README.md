@@ -233,10 +233,10 @@ This project is currently developed as a Proof of Concept (PoC) and has several 
 Once these limitations are addressed, it would be implemented by attaching the pins that are currently connected to the slave pico via jumper cables to the IOT device's SWD interface, and having the EDR pico either airgapped or connected to a separate local network to prevent attackers from being able to reach the EDR pico.
 
 # References and Special Thanks
-https://github.com/Aodrulez/blueTag
-https://github.com/grandideastudio/jtagulator
-https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/
-https://github.com/jbentham/picoreg
-https://github.com/szymonh/SWDscan 
-https://www.digikey.com/en/maker/projects/raspberry-pi-pico-rp2040-sd-card-example-with-micropython-and-cc/e472c7f578734bfd96d437e68e670050
-https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico 
+https://github.com/Aodrulez/blueTag  
+https://github.com/grandideastudio/jtagulator  
+https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/  
+https://github.com/jbentham/picoreg  
+https://github.com/szymonh/SWDscan   
+https://www.digikey.com/en/maker/projects/raspberry-pi-pico-rp2040-sd-card-example-with-micropython-and-cc/e472c7f578734bfd96d437e68e670050  
+https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico   
