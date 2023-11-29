@@ -6,5 +6,6 @@
         "hw_config.h": "c",
         "stdlib.h": "c",
         "type_traits": "c"
-    }
+    },
+    "C_Cpp.errorSquiggles": "disabled"
 }

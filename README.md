@@ -190,6 +190,53 @@ File closed.
 To achieve a modular design process, our team came up with a flow chart and block diagram.
 https://lucid.app/lucidchart/312a728e-e321-4c02-9378-942c1ac860c6/edit?viewport_loc=-2077%2C168%2C3543%2C1911%2C0_0&invitationId=inv_4bff7bb7-6d56-4b16-a35a-9eb6a69ea5cb
 
+## SWD Introduction
++ Serial Wire Debug(SWD) interface was created as an alternative to JTAG. SWD solves the problem of JTAG whereby it uses only **2 signals (SWDCLK and SWDIO)** compared to JTAG's 4 signals (TCK, TMS, TDI, TDO). SWD allows debugging and accessing microprocessor registers, however its implementation is purely based on which processor you are using. For our project, **Raspberry Pi Pico uses ARM Cortex processors**. This will affect how one designs their code.
+    - SWDCLK -- clock signal sent by host.
+    - SWDIO -- bidirectional signal carrying data.
++ I will not be going in depth to describe the architecture, these information will be available under the reference section.
+
+### SWD Transactions
+![SWD Transaction](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/img/SWDTransaction.JPG)
++ SWD Transactions are the basis of most of the operations. Aside from initialisation, reading and writing data to the target will take this form.
++ According to the specification, there are 3 phases to a SWD transaction.
+    1. send a command
+    2. receive an acknowledgement
+    3. read/write data + parity
+        - parity bit -- if there is odd number of 1s, parity = 1. It should be 0 otherwise.
+
++ Things to note:
+    - when writing data to the target, you are writing data in Little Endian format.
+    - when reading data from the target, your are receiving data in Big Endian format.
+
+### Reading data for our use case
++ Reading data from the target requires a few steps which will be explained here.
+
++ Things to note:
+    - There are 2 types of ports to take note here:
+        - Debug Ports (DP)
+        - Memory Access Ports (AP)
+    - In short, the debug port handles how we access access ports that allows us to interact with the target's memory.
+    - The APBANKSEL field in the SELECT REGISTER will affect how you access memory-ap registers
+    - The TRANSFER ADDRESS REGISTER(TAR) holds the starting address of memory access. This affects subsequent read/write memory memory accesses.
+    - The DATA READ WRITE(DRW) REGISTER, reads/writes data from the address held in TAR.
+
+1. Firstly, we access the ABORT Register and clear and outstanding error flags.
+    - command [ 0x81 ]
+    - wdata [ 0x1e ]
+2. Then, we fill the SELECT REGISTER.
+    - command [ 0xb1 ]
+    - wdata [ 0x0 ]
+3. Proceed to access TAR
+    - command [ 0x8b]
+    - wdata [ INPUT ADDRESS HERE ]
+4. Finally, read data from DRW register
+    - command [ 0x9f ]
+    - rdata read 32bits
+    - rdata read parity 1bit
+     
+
+
 ## Detection Logic
 
 Our detection logic curently works as follows:
@@ -213,11 +260,11 @@ These current detection rules are focused on detecting deviation from the "known
 
 ### Flow Chart:
 
-![flowchart](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/flowchart.JPG)
+![flowchart](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/img/flowchart.JPG)
 
 ## Block Diagram:
 
-![block diagram](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/Block%20Diagram.JPG)
+![block diagram](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/img/Block%20Diagram.JPG)
   
   
 ## Future work
@@ -241,3 +288,4 @@ https://github.com/jbentham/picoreg
 https://github.com/szymonh/SWDscan   
 https://www.digikey.com/en/maker/projects/raspberry-pi-pico-rp2040-sd-card-example-with-micropython-and-cc/e472c7f578734bfd96d437e68e670050  
 https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico   
+https://developer.arm.com/documentation/ihi0031/a/Overview-of-the-ARM-Debug-Interface-and-its-components
