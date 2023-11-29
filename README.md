@@ -43,7 +43,7 @@ Please refer to diagrams below for visual aid.
 
 # Usage Sample Outputs
 + Available commands when the program is running
-\
+
 ```
  _________________  ______ _____ _____ _____ 
 |  ___|  _  \ ___ \ | ___ \_   _/  __ \  _  |
@@ -67,7 +67,7 @@ Please refer to diagrams below for visual aid.
 
  [ Note: Disable 'local echo' in your terminal emulator program ]
 ```
-\
+
 + SWD Scan
 ```
  > s
@@ -168,7 +168,7 @@ storing data...
 0x0 0x0 0x0 0x75 
 0x0 0x0 0x0 0x81
 ```
-\
+
 + Write to SD Card
 ```
 > w
@@ -177,7 +177,7 @@ File opened.
 File written.
 File closed.
 ``` 
-\
+
 + Read from SD Card
 ```
  > p
@@ -281,11 +281,17 @@ This project is currently developed as a Proof of Concept (PoC) and has several 
 Once these limitations are addressed, it would be implemented by attaching the pins that are currently connected to the slave pico via jumper cables to the IOT device's SWD interface, and having the EDR pico either airgapped or connected to a separate local network to prevent attackers from being able to reach the EDR pico.
 
 # References and Special Thanks
++ SWD and JTAG related information
 https://github.com/Aodrulez/blueTag  
 https://github.com/grandideastudio/jtagulator  
 https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/  
 https://github.com/jbentham/picoreg  
-https://github.com/szymonh/SWDscan   
+https://github.com/szymonh/SWDscan 
+https://developer.arm.com/documentation/ihi0031/a/Overview-of-the-ARM-Debug-Interface-and-its-components
+https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/
+https://research.kudelskisecurity.com/2019/07/31/swd-part-2-the-mem-ap/
+https://community.silabs.com/s/article/how-to-program-internal-sram-over-swd?language=en_US  
++ SD Card 
 https://www.digikey.com/en/maker/projects/raspberry-pi-pico-rp2040-sd-card-example-with-micropython-and-cc/e472c7f578734bfd96d437e68e670050  
 https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico   
-https://developer.arm.com/documentation/ihi0031/a/Overview-of-the-ARM-Debug-Interface-and-its-components
+
