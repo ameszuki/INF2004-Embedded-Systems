@@ -210,8 +210,6 @@ The overall entropy of each memory dump is calculated, and the average entropy o
 These current detection rules are focused on detecting deviation from the "known good" rather than "known bad" e.g. static malware signatures in memory, to increase effectiveness against previously unknown attacks. A practical example of an attack being stopped by this would be buffer overflow exploits, where large chunks of memory may be overwritten suddenly. This would likely change bytes that were previously static, overwrite a few counter values unexpectedly and change the overall entropy of the memory by a significant amount due to the large amount of new data (such as "\x41\x41\x41\x41\x41") being placed into memory during the attack.
 
 ```
-No anomaly detected in test case 5
-
 RULE 1: Static bytes
 Expected Normal  : 00 00 00 ??
 Input Buffer     : 00 00 00 3C
@@ -249,6 +247,8 @@ RULE 3: Expected entropy range
 Expected Normal  : 0.811278
 Input Buffer     : 2.000000
  [ALERT] --> Anomaly - entropy change to 2.000000 from average of 0.811278
+
+Anomaly detected in test case 8
 ```
 
 ### Flow Chart:
