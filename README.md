@@ -282,16 +282,16 @@ Once these limitations are addressed, it would be implemented by attaching the p
 
 # References and Special Thanks
 + SWD and JTAG related information
-https://github.com/Aodrulez/blueTag  
-https://github.com/grandideastudio/jtagulator  
-https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/  
-https://github.com/jbentham/picoreg  
-https://github.com/szymonh/SWDscan 
-https://developer.arm.com/documentation/ihi0031/a/Overview-of-the-ARM-Debug-Interface-and-its-components
-https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/
-https://research.kudelskisecurity.com/2019/07/31/swd-part-2-the-mem-ap/
-https://community.silabs.com/s/article/how-to-program-internal-sram-over-swd?language=en_US  
+- https://github.com/Aodrulez/blueTag  
+- https://github.com/grandideastudio/jtagulator  
+- https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/  
+- https://github.com/jbentham/picoreg  
+- https://github.com/szymonh/SWDscan 
+- https://developer.arm.com/documentation/ihi0031/a/Overview-of-the-ARM-Debug-Interface-and-its-components
+- https://research.kudelskisecurity.com/2019/05/16/swd-arms-alternative-to-jtag/
+- https://research.kudelskisecurity.com/2019/07/31/swd-part-2-the-mem-ap/
+- https://community.silabs.com/s/article/how-to-program-internal-sram-over-swd?language=en_US  
 + SD Card 
-https://www.digikey.com/en/maker/projects/raspberry-pi-pico-rp2040-sd-card-example-with-micropython-and-cc/e472c7f578734bfd96d437e68e670050  
-https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico   
+- https://www.digikey.com/en/maker/projects/raspberry-pi-pico-rp2040-sd-card-example-with-micropython-and-cc/e472c7f578734bfd96d437e68e670050  
+- https://github.com/carlk3/no-OS-FatFS-SD-SDIO-SPI-RPi-Pico   
 
