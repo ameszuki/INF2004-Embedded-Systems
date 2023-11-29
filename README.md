@@ -220,6 +220,17 @@ These current detection rules are focused on detecting deviation from the "known
 ## Block Diagram:
 
 ![block diagram](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/Block%20Diagram.JPG)
+  
+  
+## Future work
+This project is currently developed as a Proof of Concept (PoC) and has several limitations that should be addressed before it can be considered operationally practical to implement.  
+- memory dumping speed is currently too slow to practically dump the entire flash memory (2MB) of a pi pico, which should be implemented for a real use case
+- detection logic is currently hardcoded into the firmware. A more practical solution would be to send the raw dumps to a dedicated server/cloud in a secure manner, where more sophisticated analysis can be performed e.g.
+    - YARA signature checking to detect known malware
+    - forwarding to SIEM for query
+
+
+Once these limitations are addressed, it would be implemented by attaching the pins that are currently connected to the slave pico via jumper cables to the IOT device's SWD interface, and having the EDR pico either airgapped or connected to a separate local network to prevent attackers from being able to reach the EDR pico.
 
 # References and Special Thanks
 https://github.com/Aodrulez/blueTag
