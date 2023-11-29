@@ -1,6 +1,8 @@
 # The Idea
-Develop Proof of Concept EDR(Endpoint Detection and Response) solution on Pico. 2 Picos will be involved, the 1st pico will be emulating a simple IoT device which will be monitored by the a 2nd pico. The 2nd pico will be the EDR that is monitoring the emulated IoT device's ram and flash memory for changes in configurations, voltage, etc.
-A concrete example would be, detecting changes in the firmware of the emulated IoT device. The EDR will then send a reset signal as a response to prevent the anomaly from taking effect. Data of such anomaly will also be recorded and stored in an SD card. Data being monitored will also serve a web GUI for the viewing of data.
+
+The idea was to develop a Proof of Concept EDR (Endpoint Detection and Response) solution for IoT devices using a pico. The proof of concept involves 2 picos, where the first pico emulates a simple IoT device which is being monitored by the 2nd pico, which is the EDR. The idea was to use the Serial Wire Debug (SWD) interface to achieve a hardware level read/write of memory, and use it to monitor for anomalies in the flash memory such as configurations, voltage etc.
+
+A concrete example would be, detecting changes in the firmware of the emulated IoT device. The EDR could then send a reset signal as a response to prevent the anomaly from taking effect. Data of such anomaly will also be recorded and stored in an SD card. Data being monitored will also serve a web GUI for the viewing of data.
 
 # Current use case
 + Target Pico - contains code that increments a counter variable to simulate the constant changing of value of an IoT device.
@@ -189,6 +191,8 @@ File closed.
 
 To achieve a modular design process, our team came up with a flow chart and block diagram.
 https://lucid.app/lucidchart/312a728e-e321-4c02-9378-942c1ac860c6/edit?viewport_loc=-2077%2C168%2C3543%2C1911%2C0_0&invitationId=inv_4bff7bb7-6d56-4b16-a35a-9eb6a69ea5cb
+
+# Detection Logic
 
 ## Flow Chart:
 
