@@ -205,7 +205,7 @@ Bytes that are constantly static throughout the baseline data are marked as "sta
 Bytes that have a constant increment BETWEEN baseline dumps e.g. incrementing from 1 to 5 to 10 or 7 to 4 to 1 are considered "counters". If these bytes change by any offset other than the expected increment, it will be considered an anomaly and alerted on.
   
 ### Entropy
-The overall entropy of each memory dump is calculated, and the average entropy of all baseline dumps is taken. If any future dumps have an entropy deviating from the average by more than 50% overall, it is considered an anomaly and alerted on.
+The overall entropy of each memory dump is calculated, and the average entropy of all baseline dumps is taken. If any future dumps have an entropy deviating from the average by more than 50% of the original average, it is considered an anomaly and alerted on.
 
 These current detection rules are focused on detecting deviation from the "known good" rather than "known bad" e.g. static malware signatures in memory, to increase effectiveness against previously unknown attacks. A practical example of an attack being stopped by this would be buffer overflow exploits, where large chunks of memory may be overwritten suddenly. This would likely change bytes that were previously static, overwrite a few counter values unexpectedly and change the overall entropy of the memory by a significant amount due to the large amount of new data (such as "\x41\x41\x41\x41\x41") being placed into memory during the attack.
 
