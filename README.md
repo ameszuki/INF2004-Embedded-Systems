@@ -1,6 +1,6 @@
 # The Idea
 
-The idea was to develop a Proof of Concept EDR (Endpoint Detection and Response) solution for IoT devices using a pico. The proof of concept involves 2 picos, where the first pico emulates a simple IoT device which is being monitored by the 2nd pico, which is the EDR. The idea was to use the Serial Wire Debug (SWD) interface to achieve a hardware level read/write of memory, and use it to monitor for anomalies in the flash memory such as configurations, voltage etc.
+The idea was to develop a Proof of Concept EDR (Endpoint Detection and Response) solution for IoT devices using a pico. The proof of concept involves 2 picos, where the first pico emulates a simple IoT device which is being monitored by the 2nd pico, which is the EDR. The idea was to use the Serial Wire Debug (SWD) interface to achieve a hardware level read/write of memory, which should be impossible for an attacker to tamper with from a software level. This can be used to monitor for anomalies in the flash memory such as configurations, voltage etc.
 
 A concrete example would be, detecting changes in the firmware of the emulated IoT device. The EDR could then send a reset signal as a response to prevent the anomaly from taking effect. Data of such anomaly will also be recorded and stored in an SD card. Data being monitored will also serve a web GUI for the viewing of data.
 
@@ -192,9 +192,66 @@ File closed.
 To achieve a modular design process, our team came up with a flow chart and block diagram.
 https://lucid.app/lucidchart/312a728e-e321-4c02-9378-942c1ac860c6/edit?viewport_loc=-2077%2C168%2C3543%2C1911%2C0_0&invitationId=inv_4bff7bb7-6d56-4b16-a35a-9eb6a69ea5cb
 
-# Detection Logic
+## Detection Logic
 
-## Flow Chart:
+Our detection logic curently works as follows:
+
+The first 10 (configurable in code) memory dumps are considered "known good" and are used as a baseline to detect expected behaviour patterns. The analysis currently is as follows:
+
+### Static bytes
+Bytes that are constantly static throughout the baseline data are marked as "static". Changes to any of these will be considered an anomaly and alerted on.
+  
+## Counters
+Bytes that have a constant increment BETWEEN baseline dumps e.g. incrementing from 1 to 5 to 10 or 7 to 4 to 1 are considered "counters". If these bytes change by any offset other than the expected increment, it will be considered an anomaly and alerted on.
+  
+## Entropy
+The overall entropy of each memory dump is calculated, and the average entropy of all baseline dumps is taken. If any future dumps have an entropy deviating from the average by more than 50% overall, it is considered an anomaly and alerted on.
+
+These current detection rules are focused on detecting deviation from the "known good" rather than "known bad" e.g. static malware signatures in memory, to increase effectiveness against previously unknown attacks. A practical example of an attack being stopped by this would be buffer overflow exploits, where large chunks of memory may be overwritten suddenly. This would likely change bytes that were previously static, overwrite a few counter values unexpectedly and change the overall entropy of the memory by a significant amount due to the large amount of new data (such as "\x41\x41\x41\x41\x41") being placed into memory during the attack.
+
+```
+No anomaly detected in test case 5
+
+RULE 1: Static bytes
+Expected Normal  : 00 00 00 ??
+Input Buffer     : 00 00 00 3C
+RULE 2: Expected counter values
+Expected Normal  :          6
+Input Buffer     : 00 00 00 3C
+RULE 3: Expected entropy range
+Expected Normal  : 0.811278
+Input Buffer     : 0.811278
+
+No anomaly detected in test case 6
+
+RULE 1: Static bytes
+Expected Normal  : 00 00 00 ??
+Input Buffer     : 00 00 00 42
+RULE 2: Expected counter values
+Expected Normal  :          6
+Input Buffer     : 00 00 00 42
+RULE 3: Expected entropy range
+Expected Normal  : 0.811278
+Input Buffer     : 0.811278
+
+No anomaly detected in test case 7
+
+RULE 1: Static bytes
+Expected Normal  : 00 00 00 ??
+Input Buffer     : 3E 4D 00 53
+ [ALERT] --> Anomaly at position 0 (Previously STATIC byte 00 has changed to 3E)
+ [ALERT] --> Anomaly at position 1 (Previously STATIC byte 00 has changed to 4D)
+RULE 2: Expected counter values
+Expected Normal  :          6
+Input Buffer     : 3E 4D 00 53
+ [ALERT] --> Anomaly at position 3 (a known COUNTER with expected change of 6, has changed in an unexpected way, off by 5)
+RULE 3: Expected entropy range
+Expected Normal  : 0.811278
+Input Buffer     : 2.000000
+ [ALERT] --> Anomaly - entropy change to 2.000000 from average of 0.811278
+```
+
+### Flow Chart:
 
 ![flowchart](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/flowchart.JPG)
 
