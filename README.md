@@ -1,6 +1,6 @@
 # The Idea
 
-The idea was to develop a Proof of Concept EDR (Endpoint Detection and Response) solution for IoT devices using a pico. The proof of concept involves 2 picos, where the first pico emulates a simple IoT device which is being monitored by the 2nd pico, which is the EDR. The idea was to use the Serial Wire Debug (SWD) interface to achieve a hardware level read/write of memory, which should be impossible for an attacker to tamper with from a software level. This can be used to monitor for anomalies in the flash memory such as configurations, voltage etc.
+The idea was to develop a Proof of Concept EDR (Endpoint Detection and Response) solution for IoT devices using a pico. The proof of concept involves 2 picos, where the first pico emulates a simple IoT device which is being monitored by the 2nd pico, which is the EDR. The goal is to Serial Wire Debug (SWD) interface to achieve a hardware level read/write of memory, which should be impossible for an attacker to tamper with from a software level. This can be used to monitor for anomalies in the flash memory such as configurations, voltage etc.
 
 A concrete example would be, detecting changes in the firmware of the emulated IoT device. The EDR could then send a reset signal as a response to prevent the anomaly from taking effect. Data of such anomaly will also be recorded and stored in an SD card.  
 
