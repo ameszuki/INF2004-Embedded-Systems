@@ -256,9 +256,29 @@ These current detection rules are focused on detecting deviation from the "known
 
 ![image](https://github.com/CodeXTF2/INF2004-Embedded-Systems/assets/29991665/35daa0cd-fb50-460d-bea6-5ad90b48289d)
 
+# Debugging Issues
++ If you encounter an issue whereby you are unable to dump data
+    1. flash picroprobe.uf2 file into EDR Pico
+    2. start openocd program
+    3. use below commands to test if dumping is possible
+    ```
+    openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "reset init" -c "dump_image D:\\SIT\\INF2004-Embedded-Systems\\others\\openocd\\testdump 0x100001e8 12" -c "exit"
 
+    openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "reset init" -c "dump_image [ PATH TO FILE ] [ START ADDRESS OF DUMP ] [ NUM OF BYTES ]" -c "exit"
+    ```
+    - note that this command halts the core, so this should be used to test address values that are non-volatile (aka values that are not changing)
 
-### Flow Chart:
+    ```
+    openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "dump_image D:\\SIT\\INF2004-Embedded-Systems\\others\\openocd\\testdump 0x20001364 12" -c "exit"
+
+    openocd -f interface/cmsis-dap.cfg -f target/rp2040.cfg -s scripts -c "adapter speed 5000" -c "init" -c "dump_image [ PATH TO FILE ] [ START ADDRESS OF DUMP ] [ NUM OF BYTES ]" -c "exit"
+    ```
+    - note that this command does not halt the core, so this should be used to test address values that are volatile (E.g A value in the counter variable that is constantly changing)
+    
+    4. Reflash swd_edr.uf2 into the EDR Pico. Do so without unplugging the USB cable.
+        - Hold the bootsel button, then hold the run button, let go of the run button, finally let go of the bootsel button respectively
+
+## Flow Chart:
 
 ![flowchart](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/img/flowchart.JPG)
 
@@ -267,7 +287,7 @@ These current detection rules are focused on detecting deviation from the "known
 ![block diagram](https://github.com/CodeXTF2/INF2004-Embedded-Systems/blob/main/img/Block%20Diagram.JPG)
   
   
-## Future work
+## Future Works
 This project is currently developed as a Proof of Concept (PoC) and has several limitations that should be addressed before it can be considered operationally practical to implement.  
 - memory dumping speed is currently too slow to practically dump the entire flash memory (2MB) of a pi pico, which should be implemented for a real use case
 - currently logs are stored in the SD card, displaying them via a web gui would be more user friendly  
