@@ -257,7 +257,7 @@ These current detection rules are focused on detecting deviation from the "known
 ![image](https://github.com/CodeXTF2/INF2004-Embedded-Systems/assets/29991665/35daa0cd-fb50-460d-bea6-5ad90b48289d)
 
 # Debugging Issues
-If you encounter an issue whereby you are unable to dump data.
+If you encounter an issue whereby you are unable to dump data. Programs and files state have been provided for you in the **others** folder.
 1. Flash picroprobe.uf2 file into EDR Pico
 2. Start openocd program
 3. Use below commands to test if dumping is possible
